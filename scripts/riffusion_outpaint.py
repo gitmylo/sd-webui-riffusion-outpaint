@@ -32,42 +32,8 @@ class RiffusionOutpaint(scripts.Script):
         return [enabled, inpainting_fill_mode, length, expand_amount, keep_amount]
 
     def show(self, is_img2img):
-        return False if is_img2img else scripts.AlwaysVisible  # only show on txt2img (for now)
+        return scripts.AlwaysVisible
 
-    # def process(self, p: StableDiffusionProcessing, *args):
-        # current_x = 0
-        # first_chunk = txt2img.txt2img(
-        #     0,
-        #     p.prompt,
-        #     p.negative_prompt,
-        #     p.styles,
-        #     p.steps,
-        #     p.sampler,
-        #     p.restore_faces,
-        #     p.tiling,
-        #     p.n_iter,
-        #     1,  # batch size
-        #     p.cfg_scale,
-        #     p.seed,
-        #     p.subseed,
-        #     p.subseed_strength,
-        #     p.seed_resize_from_h,
-        #     p.seed_resize_from_w,
-        #     False,  # seed enable extras, idk what this does
-        #     p.height,
-        #     p.width,
-        #     False, None, 0, None, 0, 0, 0,
-        #     {}
-        # )[0]
-
-        # img2img.img2img(
-        #     0,
-        #     p.prompt,
-        #     p.negative_prompt,
-        #
-        # )
-        # p.batch_size = 0  # cancel generation
-        # return p
     def postprocess(self, p: StableDiffusionProcessing, processed, enabled, inpainting_fill_mode, length, expand_amount, keep_amount):
         if enabled:
             inpaint_mask = Image.new("RGB", (p.width * (expand_amount + keep_amount), p.height), "white")
