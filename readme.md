@@ -25,10 +25,16 @@ usage, while still retaining good results.
   * Sampling steps: >16 recommended for Euler a (This is the minimum it will generate good results at)
 * Script settings:
   * Img2Img masked content: Original (You can play with the other options, but Original works the best)
-  * Expand amount: 2 (2 means it will inpaint at original width*2, so 50% overlap, note: higher values use more VRAM and
-  are not always better.)
-  * Keep amount (memory): 1 (1 means it will keep the same width as the starter image for outpainting. Setting this
-  higher than Expand amount is not allowed.)
+  * Fast mode (faster generation):
+    * Expand amount: 2 (2 means it will inpaint at original width*2, note: higher values use more VRAM and
+    are not always better.)
+    * Keep amount (memory): 1 (1 means it will keep the same width as the starter image for outpainting. Setting this
+    higher than Expand amount is not allowed. Recommended to be about half of Expand amount)
+  * Precision mode (smaller chunks):
+    * Expand amount: 1 (1 means it will inpaint at original width, note: higher values use more VRAM and
+    are not always better.)
+    * Keep amount (memory): 0.5 (0.5 means it will keep the last half of the starting image for outpainting. Setting
+    this higher than Expand amount is not allowed. Recommended to be about half of Expand amount)
 
 ## How does it work?
 1. Generate the initial image.
