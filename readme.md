@@ -25,6 +25,7 @@ usage, while still retaining good results.
   * Sampling steps: >16 recommended for Euler a (This is the minimum it will generate good results at)
 * Script settings:
   * Img2Img masked content: Original (You can play with the other options, but Original works the best)
+  * Length: 2 (this will generate a 10 second clip (as `5 * 2 == 10`) when using 512x512 resolution)
   * Fast mode (faster generation):
     * Expand amount: 2 (2 means it will inpaint at original width*2, note: higher values use more VRAM and
     are not always better.)
