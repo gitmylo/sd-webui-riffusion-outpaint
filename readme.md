@@ -8,13 +8,16 @@
 ## What does it do?
 * sd-webui-riffusion-outpaint is an extension for
 [Automatic1111's Stable Diffusion web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
-* Using [Riffusion (main project link)](https://github.com/riffusion/riffusion) it lets you generate a song from a prompt in multiple steps by taking the last 5 seconds, and outpainting the next.
-This will allow you to generate audio clips as long as you want, without the quality loss or VRAM usage from doing it in
-one go!
+* Using [Riffusion (main project link)](https://github.com/riffusion/riffusion) it lets you generate a song from a
+prompt in multiple steps by taking the last 5 seconds, and outpainting the next. This will allow you to generate audio
+clips as long as you want, without the quality loss or VRAM usage from doing it in one go!
 
 ## Requirements
-* You have to have the [riffusion model](https://huggingface.co/riffusion/riffusion-model-v1) loaded.
-* You could also use a 2 or 4gb riffusion model, by pruning the model, or changing precision. This can easily be done with [this extension](https://github.com/Akegarasu/sd-webui-model-converter). This will heavily lower your RAM and VRAM usage, while still retaining good results.
+* You have to have the [riffusion model](https://huggingface.co/riffusion/riffusion-model-v1) loaded. (Using it with a
+different model will yield unexpected results).
+* You could also use a 2 or 4gb riffusion model, by pruning the model, or changing precision. This can easily be done
+with [this extension](https://github.com/Akegarasu/sd-webui-model-converter). This will heavily lower your RAM and VRAM
+usage, while still retaining good results.
 
 ## Recommended settings
 * Main settings:
@@ -24,8 +27,8 @@ one go!
   * Img2Img masked content: Original (You can play with the other options, but Original works the best)
   * Expand amount: 2 (2 means it will inpaint at original width*2, so 50% overlap, note: higher values use more VRAM and
   are not always better.)
-  * Keep amount (memory): 1 (1 means it will keep the same width as the starter image for outpainting. Setting this higher than
-  Expand amount is not allowed.)
+  * Keep amount (memory): 1 (1 means it will keep the same width as the starter image for outpainting. Setting this
+  higher than Expand amount is not allowed.)
 
 ## How does it work?
 1. Generate the initial image.
