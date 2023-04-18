@@ -57,28 +57,35 @@ class RiffusionOutpaint(scripts.Script):
         # return p
     def postprocess(self, p: StableDiffusionProcessing, processed, enabled):
         if enabled:
-            another_gen = txt2img.txt2img(
-                0,
-                p.prompt,
-                p.negative_prompt,
-                p.styles,
-                p.steps,
-                0,  # Only euler a for now while i figure out how to get the sampler index
-                p.restore_faces,
-                p.tiling,
-                p.n_iter,
-                1,  # batch size
-                p.cfg_scale,
-                p.seed,
-                p.subseed,
-                p.subseed_strength,
-                p.seed_resize_from_h,
-                p.seed_resize_from_w,
-                False,  # seed enable extras, idk what this does
-                p.height,
-                p.width,
-                False, None, 0, None, 0, 0, 0,
-                {},
-                [enabled]
-            )[0]
-            processed.images.append(another_gen)
+            processed.images.append(generate_txt2img(p))
+
+
+def generate_txt2img(p: StableDiffusionProcessing):
+    return txt2img.txt2img(
+        "riffusion_outpaint_img2img",
+        p.prompt,
+        p.negative_prompt,
+        p.styles,
+        p.steps,
+        0,  # Only euler a for now while i figure out how to get the sampler index
+        p.restore_faces,
+        p.tiling,
+        p.n_iter,
+        1,  # batch size
+        p.cfg_scale,
+        p.seed,
+        p.subseed,
+        p.subseed_strength,
+        p.seed_resize_from_h,
+        p.seed_resize_from_w,
+        False,  # seed enable extras, idk what this does
+        p.height,
+        p.width,
+        False, None, 0, None, 0, 0, 0,
+        "",
+        # Magic?
+        0,
+        0,
+        0,
+        -1
+    )[0][0]  # Why?
