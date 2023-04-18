@@ -11,6 +11,7 @@
 * Using [Riffusion (main project link)](https://github.com/riffusion/riffusion) it lets you generate a song from a
 prompt in multiple steps by taking the last 5 seconds, and outpainting the next. This will allow you to generate audio
 clips as long as you want, without the quality loss or VRAM usage from doing it in one go!
+* Recommended [Riffusion Automatic1111 extension](https://github.com/enlyth/sd-webui-riffusion)
 
 ## Requirements
 * You have to have the [riffusion model](https://huggingface.co/riffusion/riffusion-model-v1) loaded. (Using it with a
