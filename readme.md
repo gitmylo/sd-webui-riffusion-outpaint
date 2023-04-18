@@ -19,7 +19,7 @@ one go!
 ## Recommended settings
 * Main settings:
   * Height: 512, Width: 512 (This is the optimal size for Riffusion)
-  * Sampling steps: >16 recommended for Euler a (This is the minimum it will generat good results at)
+  * Sampling steps: >16 recommended for Euler a (This is the minimum it will generate good results at)
 * Script settings:
   * Img2Img masked content: Original (You can play with the other options, but Original works the best)
   * Expand amount: 2 (2 means it will inpaint at original width*2, so 50% overlap, note: higher values use more VRAM and
