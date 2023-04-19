@@ -43,13 +43,16 @@ class RiffusionOutpaint(scripts.Script):
             processed.images.append(inpaint_mask)  # for debugging purposes
             one_minus_keep_amount = 1 - keep_amount
             inpaint_source = Image.new("RGB", (inpaint_mask.width, inpaint_mask.height), "white")
-            inpaint_source.paste(processed.images[0], (one_minus_keep_amount * inpaint_source.width, 0))
+            x = 0
+            while x < inpaint_source.width:
+                inpaint_source.paste(processed.images[0], (one_minus_keep_amount * inpaint_source.width, 0))
+                x -= keep_amount
             processed.images.append(inpaint_source)
-
+            processed.images.append(generate_img2img(inpaint_source, inpaint_mask, inpainting_fill_mode, p, processed))
             # processed.images.append(generate_txt2img(p))
 
 
-def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, p: StableDiffusionProcessing):
+def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, p: StableDiffusionProcessing, processed):
     return img2img.img2img(
         "riffusion_outpaint_img2img",
         4,  # mode: int, inpaint upload mask
@@ -65,8 +68,8 @@ def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, p: St
         init_mask_inpaint,  # init_mask_inpaint: Any,  -THIS IS THE INPAINTING MASK
         p.steps,
         0,  # Only euler a for now while i figure out how to get the sampler index
-        # mask blur: int
-        # mask alpha: float
+        4,  # mask blur: int
+        1,  # mask alpha: float
         inpainting_fill,  # inpainting fill -THIS IS THE INPAINTING FILL MODE
         p.restore_faces,
         p.tiling,
@@ -83,10 +86,10 @@ def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, p: St
         False,  # seed enable extras, idk what this does
         p.height,
         p.width,
-        # resize_mode: int
-        # inpaint_full_res: bool
-        # inpaint_full_res_padding: int
-        False,  # inpainting_mask_invert
+        0,  # resize_mode: int
+        True,  # inpaint_full_res: bool
+        0,  # inpaint_full_res_padding: int
+        True,  # inpainting_mask_invert
         None,  # img2img_batch_input_dir: str
         None,  # img2img_batch_output_dir: str
         None,  # img2img_batch_inpaint_mask_dir: str
