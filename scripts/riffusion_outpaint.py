@@ -3,7 +3,6 @@ from PIL import Image, ImageDraw
 from modules import scripts, sd_samplers
 import gradio as gr
 from modules import img2img, txt2img
-import numpy as np
 
 from modules.processing import process_images, StableDiffusionProcessing
 
