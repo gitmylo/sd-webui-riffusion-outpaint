@@ -55,6 +55,8 @@ class RiffusionOutpaint(scripts.Script):
                 processed.images.clear()
             processed.images.insert(0, total)
 
+def process_for_step(processinginfo, step, p: StableDiffusionProcessing):
+    pass
 
 def generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount, keep_amount, transition_padding,
                         denoising_strength, total, p: StableDiffusionProcessing, processed):
