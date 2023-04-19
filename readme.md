@@ -3,7 +3,8 @@
 1. [What does it do?](#what-does-it-do)
 2. [Requirements](#requirements)
 3. [Recommended settings](#recommended-settings)
-4. [How does it work?](#how-does-it-work)
+4. [Script prompts](#script-prompts)
+5. [How does it work?](#how-does-it-work)
 
 ## What does it do?
 * sd-webui-riffusion-outpaint is an extension for
@@ -48,6 +49,9 @@ usage, while still retaining good results.
     VRAM and are not always better.)
     * Keep amount (memory): 0.5 (0.5 means it will keep the last half of the starting image for outpainting. Recommended
     to be about half of Expand amount)
+
+## Script prompts
+Script prompts (`\{(eval)}` and `\{{exec}}`) are explained in the extension UI's info section.
 
 ## How does it work?
 1. Generate the initial image.
