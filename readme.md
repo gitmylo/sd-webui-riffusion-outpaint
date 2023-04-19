@@ -26,7 +26,7 @@ usage, while still retaining good results.
   * Sampling steps: >16 recommended for Euler a (This is the minimum it will generate good results at)
 * Script settings:
   * Img2Img masked content: Fill (The image that is being masked is a repeat of the previously generated section)
-    * From best to worst:
+    * From best to worst (in my testing, results may vary mostly depending on expand amount):
       * `Fill`: fill the extra generated space with colors from the previously generated parts (generally the best)
       * `Latent nothing`: fill the extra generated space with nothing (Can cause inconsistent transitions, slightly better
         than `Latent noise`)
@@ -35,8 +35,8 @@ usage, while still retaining good results.
         sounds on transitions)
   * Length: 2 (this will generate a 10-second clip (as `5 * 2 == 10`) when using 512x512 resolution)
   * Denoising strength: 1 (This will use the full denoising strength)
-  * Overmask: 64 (This will smooth out transitions somewhat, at 0 you are more likely to hear the transition, works by
-  spreading the mask out to the previously generated parts of the image, to make them smoother. (This will extend the
+  * Expand amount: 64 (This will smooth out transitions somewhat, at 0 you are more likely to hear the transition, works
+  by spreading the mask out to the previously generated parts of the image, to make them smoother. (This will extend the
   mask further to the left as well))
   * Fast mode (faster generation):
     * Expand amount: 1 (1 means it will inpaint at original width*(keep amount + 1), note: higher values use more VRAM
