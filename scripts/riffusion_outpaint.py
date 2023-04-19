@@ -43,14 +43,12 @@ class RiffusionOutpaint(scripts.Script):
     def show(self, is_img2img):
         return scripts.AlwaysVisible
 
-    # TODO: fix white images on 0.5 0.5 settings on the third generate_next_chunk call
     def postprocess(self, p: StableDiffusionProcessing, processed, enabled=False, keep_generated=False, keep_debug=False,
                     inpainting_fill_mode="fill", length=2, expand_amount=1, keep_amount=1, transition_padding=64,
                     denoising_strength=1):
         if enabled:
             total = processed.images[0]
             for i in range(length - 1):
-                print(i)
                 (next_chunk, total) = generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount, keep_amount,
                                                           transition_padding, denoising_strength, total, p, processed)
             if not keep_generated:
@@ -68,7 +66,7 @@ def generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount,
     inpaint_mask_editing.rectangle((keep_amount_width - transition_padding, 0, inpaint_mask.width + transition_padding,
                                     inpaint_mask.height), fill="black")
     inpaint_source = Image.new("RGB", (inpaint_mask.width, inpaint_mask.height), "white")
-    for x in range(0, full_mask_width + abs(p.width * 2 - total.width) + 1, total.width):  # expands as much as needed
+    for x in range(0, full_mask_width + 1 + total.width, total.width):  # expands as much as needed
         inpaint_source.paste(total, (full_mask_width - x, 0))
 
     totalout = Image.new("RGB", (total.width + expand_amount_width, total.height), "white")
