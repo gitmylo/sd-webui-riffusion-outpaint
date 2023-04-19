@@ -18,11 +18,13 @@ class RiffusionOutpaint(scripts.Script):
     def ui(self, is_img2img):
         with gr.Accordion(self.title(), open=False):
             enabled = gr.Checkbox(False, label="Enable riffusion outpaint")
-            keep_generated = gr.Checkbox(False, label="Keep generated chunks separately")
+            with gr.Row():
+                keep_generated = gr.Checkbox(False, label="Keep generated chunks separately")
+                keep_debug = gr.Checkbox(False, label="Keep debug images (inpaint base, inpaint mask, full chunk)")
             inpainting_fill_mode = gr.Radio(
-                label="Img2Img masked content",
+                label="masked content",
                 choices=["fill", "original", "latent noise", "latent nothing"],
-                value="original",
+                value="fill",
                 type="index",
             )
             length = gr.Slider(label="Length", value=2, minimum=2, maximum=128, step=1)
@@ -30,53 +32,69 @@ class RiffusionOutpaint(scripts.Script):
                 expand_amount = gr.Slider(label="Expand amount (Higher uses more VRAM)", value=1, minimum=0.1, step=0.1)
                 keep_amount = gr.Slider(label="Keep amount AKA \"memory\" (Higher uses more VRAM)", value=1, minimum=0,
                                         maximum=10, step=0.1)
-            denoising_strength = gr.Slider(label="Denoising strength", value=1, minimum=0, maximum=1, step=0.01)
-        return [enabled, keep_generated, inpainting_fill_mode, length, expand_amount, keep_amount, denoising_strength]
+            with gr.Row():
+                transition_padding = gr.Slider(label="Overmask (like blur, but only spread, higher is smoother)", value=64,
+                                               minimum=0,
+                                               maximum=512, step=1)
+                denoising_strength = gr.Slider(label="Denoising strength", value=1, minimum=0, maximum=1, step=0.01)
+        return [enabled, keep_generated, keep_debug, inpainting_fill_mode, length, expand_amount, keep_amount, transition_padding,
+                denoising_strength]
 
     def show(self, is_img2img):
         return scripts.AlwaysVisible
 
-    def postprocess(self, p: StableDiffusionProcessing, processed, enabled, keep_generated, inpainting_fill_mode,
-                    length=2, expand_amount=1, keep_amount=1, denoising_strength=1):
+    # TODO: fix white images on 0.5 0.5 settings on the third generate_next_chunk call
+    def postprocess(self, p: StableDiffusionProcessing, processed, enabled=False, keep_generated=False, keep_debug=False,
+                    inpainting_fill_mode="fill", length=2, expand_amount=1, keep_amount=1, transition_padding=64,
+                    denoising_strength=1):
         if enabled:
             total = processed.images[0]
             for i in range(length - 1):
-                (next_chunk, total) = generate_next_chunk(inpainting_fill_mode, length, expand_amount, keep_amount,
-                                                      denoising_strength, total, p, processed)
+                print(i)
+                (next_chunk, total) = generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount, keep_amount,
+                                                          transition_padding, denoising_strength, total, p, processed)
             if not keep_generated:
                 processed.images.clear()
             processed.images.insert(0, total)
-            # processed.images.append(total)
 
 
-def generate_next_chunk(inpainting_fill_mode, length, expand_amount, keep_amount, denoising_strength, total,
-                        p: StableDiffusionProcessing, processed):
+def generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount, keep_amount, transition_padding,
+                        denoising_strength, total, p: StableDiffusionProcessing, processed):
     full_mask_width = int(p.width * (expand_amount + keep_amount))
     keep_amount_width = int(p.width * keep_amount)
     expand_amount_width = int(p.width * expand_amount)
     inpaint_mask = Image.new("RGB", (full_mask_width, p.height), "white")
     inpaint_mask_editing = ImageDraw.Draw(inpaint_mask)
-    inpaint_mask_editing.rectangle((keep_amount_width, 0, inpaint_mask.width, inpaint_mask.height),
-                                   fill="black")
-    # processed.images.append(inpaint_mask)  # for debugging purposes
-    one_minus_keep_amount = 1 - keep_amount
+    inpaint_mask_editing.rectangle((keep_amount_width - transition_padding, 0, inpaint_mask.width + transition_padding,
+                                    inpaint_mask.height), fill="black")
     inpaint_source = Image.new("RGB", (inpaint_mask.width, inpaint_mask.height), "white")
-    for x in range(0, full_mask_width + abs(p.width*2-total.width) + 1, total.width):  # expands as much as needed
+    for x in range(0, full_mask_width + abs(p.width * 2 - total.width) + 1, total.width):  # expands as much as needed
         inpaint_source.paste(total, (full_mask_width - x, 0))
+
     totalout = Image.new("RGB", (total.width + expand_amount_width, total.height), "white")
     totalout.paste(total, (0, 0))
     try:
-        generate_with_inpaint_source = generate_img2img(inpaint_source, inpaint_mask, inpainting_fill_mode, denoising_strength, p, processed)
+        generate_with_inpaint_source = generate_img2img(inpaint_source, inpaint_mask, inpainting_fill_mode,
+                                                        denoising_strength, transition_padding, p, processed)
     except Exception as e:
         print(e)
         generate_with_inpaint_source = inpaint_mask  # black
-    generated = generate_with_inpaint_source.crop((generate_with_inpaint_source.width - expand_amount_width, 0, generate_with_inpaint_source.width, generate_with_inpaint_source.height))
+    generated = generate_with_inpaint_source.crop((generate_with_inpaint_source.width - expand_amount_width -
+                                                   (transition_padding * 2), 0, generate_with_inpaint_source.width,
+                                                   generate_with_inpaint_source.height))
+
+    if keep_debug:  # for debugging purposes
+        processed.images.append(inpaint_mask)
+        processed.images.append(inpaint_source)
+        processed.images.append(generate_with_inpaint_source)
+
     totalout.paste(generated, (totalout.width - generated.width, 0))
+
     processed.images.append(generated)
-    return (generated, totalout)
+    return generated, totalout
 
 
-def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, denoising_stength,
+def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, denoising_stength, transition_padding,
                      p: StableDiffusionProcessing, processed):
     sampler_index = 0
     for i in range(len(sd_samplers.samplers_for_img2img)):
@@ -98,7 +116,7 @@ def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, denoi
         init_mask_inpaint,  # init_mask_inpaint: Any,  -THIS IS THE INPAINTING MASK
         p.steps,
         sampler_index,  # Taken from unprompted: https://github.com/ThereforeGames/unprompted/
-        0,  # mask blur: int
+        transition_padding,  # mask blur: int
         1,  # mask alpha: float
         inpainting_fill,  # inpainting fill -THIS IS THE INPAINTING FILL MODE
         p.restore_faces,
@@ -114,10 +132,10 @@ def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, denoi
         p.seed_resize_from_h,
         p.seed_resize_from_w,
         False,  # seed enable extras, idk what this does
-        p.height,
-        p.width,
+        init_img_inpaint.height,  # height
+        init_img_inpaint.width,  # width
         0,  # resize_mode: int
-        True,  # inpaint_full_res: bool
+        False,  # inpaint_full_res: bool
         0,  # inpaint_full_res_padding: int
         True,  # inpainting_mask_invert
         None,  # img2img_batch_input_dir: str
@@ -125,8 +143,8 @@ def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, denoi
         None,  # img2img_batch_inpaint_mask_dir: str
         "",
         # Magic?
-        0,
-        0,
+        0,  # Script index stuff?
+        0,  # Script args?
         0,
         -1
     )[0][0]  # Why?
