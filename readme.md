@@ -27,6 +27,7 @@ usage, while still retaining good results.
 * Script settings:
   * Img2Img masked content: Original (You can play with the other options, but Original works the best)
   * Length: 2 (this will generate a 10-second clip (as `5 * 2 == 10`) when using 512x512 resolution)
+  * Denoising strength: 1 (This will use the full denoising strength)
   * Fast mode (faster generation):
     * Expand amount: 1 (1 means it will inpaint at original width*(keep amount + 1), note: higher values use more VRAM
     and are not always better.)
