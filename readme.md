@@ -2,9 +2,10 @@
 ## Table of contents
 1. [What does it do?](#what-does-it-do)
 2. [Requirements](#requirements)
-3. [Recommended settings](#recommended-settings)
-4. [Script prompts](#script-prompts)
-5. [How does it work?](#how-does-it-work)
+3. [Known bugs](#known-bugs)
+4. [Recommended settings](#recommended-settings)
+5. [Script prompts](#script-prompts)
+6. [How does it work?](#how-does-it-work)
 
 ## What does it do?
 * sd-webui-riffusion-outpaint is an extension for
@@ -20,6 +21,14 @@ different model will yield unexpected results).
 * You could also use a 2 or 4gb riffusion model, by pruning the model, or changing precision. This can easily be done
 with [this extension](https://github.com/Akegarasu/sd-webui-model-converter). This will heavily lower your RAM and VRAM
 usage, while still retaining good results.
+
+## Known bugs
+* Does not work with VladMandic's fork, as the img2img method is changed and is missing the seed_enable_extras
+parameter. I opened a [pull request](https://github.com/vladmandic/automatic/pull/316) for this, since this missing causes the plugin to not work anymore. for now,
+if you want to use VladMandic's fork, but also want to use this extension, use
+[This fork](https://github.com/gitmylo/automatic-fix).
+* Shows errors in console when running on fixed VladMandic fork. These can be ignored but are also caused by changes
+made in the VladMandic fork.
 
 ## Recommended settings
 * Main settings:
