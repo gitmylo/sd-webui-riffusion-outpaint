@@ -144,7 +144,7 @@ def replace_prompt_for_step(prompt_text, step, total_steps, p: StableDiffusionPr
             # def exec_return_internal():  # This function will be replaced by the executed code
             #     return "This shouldn't happen"
             exec(f"def exec_return_internal(info):\n{code}"
-                 .replace("\n", "\n\t"),
+                 .replace("\n", "\n  "),
                  globals())  # Replace \n to \n\t to put everything inside the def, so it's indented
 
             evaluated = exec_return_internal(info)
