@@ -56,8 +56,8 @@ Script prompts (`\{(eval)}` and `\{{exec}}`) are explained in the extension UI's
 ## How does it work?
 1. Generate the initial image.
 2. Expand the image.
-3. Create an outpainting mask on the expanded area.
-4. Generate the masked area. Now the song has been extended by another 5 seconds.
-5. Cut off the last 5 seconds generated.
-6. If size < end size, expand. else, continue at step 2.
-7. Combine the generated chunks into one big file.
+3. Create an outpainting mask on the expanded area (and spread it).
+4. Generate the masked area. Now the song has been extended, Also replaces some of the old area to improve the transition.
+5. Cut off the newly generated part, and the updated older part.
+6. Repeat from step 2 until the specified length (count) has been reached.
+7. Combine the generated chunks into one big image.
