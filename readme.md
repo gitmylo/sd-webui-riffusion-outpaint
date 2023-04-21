@@ -23,10 +23,10 @@ with [this extension](https://github.com/Akegarasu/sd-webui-model-converter). Th
 usage, while still retaining good results.
 
 ## Known bugs
-* Does not work with VladMandic's fork, as the img2img method is changed and is missing the seed_enable_extras
+* ~~Does not work with VladMandic's fork, as the img2img method is changed and is missing the seed_enable_extras
 parameter. I opened a [pull request](https://github.com/vladmandic/automatic/pull/316) for this, since this missing causes the plugin to not work anymore. for now,
 if you want to use VladMandic's fork, but also want to use this extension, use
-[This fork](https://github.com/gitmylo/automatic-fix).
+[This fork](https://github.com/gitmylo/automatic-fix).~~ - merged
 * Shows errors in console when running on fixed VladMandic fork. These can be ignored but are also caused by changes
 made in the VladMandic fork.
 
