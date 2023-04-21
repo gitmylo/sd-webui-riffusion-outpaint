@@ -86,7 +86,7 @@ class RiffusionOutpaint(scripts.Script):
         if not enabled:
             return p
 
-        self.original_prompt = (p.all_prompts[0], p.all_negative_prompts[0])
+        self.original_prompt = (p.all_prompts[0], p.all_negative_prompts[0], p.prompt, p.negative_prompt)
         if scripts_enabled:
             process_for_step(0, length, p)
 
@@ -97,9 +97,7 @@ class RiffusionOutpaint(scripts.Script):
             total = processed.images[0]
             for i in range(length - 1):
                 if scripts_enabled:  # Only run if scripts are enabled
-                    (pos, neg) = self.original_prompt
-                    p.prompt = pos
-                    p.negative_prompt = neg
+                    (p.all_prompts[0], p.all_negative_prompts[0], p.prompt, p.negative_prompt) = self.original_prompt
                     process_for_step(i + 1, length, p)  # other steps
                 (next_chunk, total) = generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount,
                                                           keep_amount, transition_padding, denoising_strength, total,
@@ -110,9 +108,11 @@ class RiffusionOutpaint(scripts.Script):
 
 
 def process_for_step(step, total_steps, p: StableDiffusionProcessing):
-    p.all_prompts[0] = p.prompt = replace_prompt_for_step(p.prompt, step, total_steps, p)
+    p.all_prompts[0] = replace_prompt_for_step(p.all_prompts[0], step, total_steps, p)
+    p.prompt = replace_prompt_for_step(p.prompt, step, total_steps, p)
     print(f"\nEvaluated Prompt: \"{p.prompt}\"")
-    p.all_negative_prompts[0] = p.negative_prompt = replace_prompt_for_step(p.negative_prompt, step, total_steps, p)
+    p.all_negative_prompts[0] = replace_prompt_for_step(p.all_negative_prompts[0], step, total_steps, p)
+    p.negative_prompt = replace_prompt_for_step(p.negative_prompt, step, total_steps, p)
     print(f"Evaluated negative prompt: \"{p.negative_prompt}\"")
 
 
