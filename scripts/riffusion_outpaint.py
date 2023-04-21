@@ -33,6 +33,7 @@ class RiffusionOutpaint(scripts.Script):
                 value="fill",
                 type="index",
             )
+            inpaint_full_res = gr.Checkbox(True, label="Inpaint full res")
             length = gr.Slider(label="Length", value=2, minimum=2, maximum=128, step=1)
             with gr.Row():
                 expand_amount = gr.Slider(label="Expand amount (Higher uses more VRAM)", value=1, minimum=0.1, step=0.1)
@@ -74,15 +75,14 @@ class RiffusionOutpaint(scripts.Script):
                     with gr.Accordion("Combined", open=False):
                         gradio_create_html_description("Custom info data", "<b>\\{{info.test = \"test data\"}}\\{(info.test)}</b>")
         return [enabled, scripts_enabled, keep_generated, keep_debug, inpainting_fill_mode, length, expand_amount,
-                keep_amount,
-                transition_padding, denoising_strength]
+                keep_amount, transition_padding, denoising_strength, inpaint_full_res]
 
     def show(self, is_img2img):
         return scripts.AlwaysVisible
 
     def process(self, p: StableDiffusionProcessing, enabled=False, scripts_enabled=False, keep_generated=False,
                 keep_debug=False, inpainting_fill_mode="fill", length=2, expand_amount=1, keep_amount=1,
-                transition_padding=64, denoising_strength=1):
+                transition_padding=64, denoising_strength=1, inpaint_full_res=False):
         if not enabled:
             return p
 
@@ -92,7 +92,7 @@ class RiffusionOutpaint(scripts.Script):
 
     def postprocess(self, p: StableDiffusionProcessing, processed, enabled=False, scripts_enabled=False,
                     keep_generated=False, keep_debug=False, inpainting_fill_mode="fill", length=2, expand_amount=1,
-                    keep_amount=1, transition_padding=64, denoising_strength=1):
+                    keep_amount=1, transition_padding=64, denoising_strength=1, inpaint_full_res=False):
         if enabled:
             total = processed.images[0]
             for i in range(length - 1):
@@ -102,8 +102,8 @@ class RiffusionOutpaint(scripts.Script):
                     p.negative_prompt = neg
                     process_for_step(i + 1, length, p)  # other steps
                 (next_chunk, total) = generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount,
-                                                          keep_amount,
-                                                          transition_padding, denoising_strength, total, p, processed)
+                                                          keep_amount, transition_padding, denoising_strength, total,
+                                                          inpaint_full_res, p, processed)
             if not keep_generated:
                 processed.images.clear()
             processed.images.insert(0, total)
@@ -160,7 +160,7 @@ def check_func_call(func_call, close_type):
 
 
 def generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount, keep_amount, transition_padding,
-                        denoising_strength, total, p: StableDiffusionProcessing, processed):
+                        denoising_strength, total, inpaint_full_res, p: StableDiffusionProcessing, processed):
     full_mask_width = int(p.width * (expand_amount + keep_amount))
     keep_amount_width = int(p.width * keep_amount)
     expand_amount_width = int(p.width * expand_amount)
@@ -176,7 +176,8 @@ def generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount,
     totalout.paste(total, (0, 0))
     try:
         generate_with_inpaint_source = generate_img2img(inpaint_source, inpaint_mask, inpainting_fill_mode,
-                                                        denoising_strength, transition_padding, p, processed)
+                                                        denoising_strength, transition_padding, inpaint_full_res, p,
+                                                        processed)
     except Exception as e:
         print(e)
         generate_with_inpaint_source = inpaint_mask  # black
@@ -196,7 +197,7 @@ def generate_next_chunk(keep_debug, inpainting_fill_mode, length, expand_amount,
 
 
 def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, denoising_stength, transition_padding,
-                     p: StableDiffusionProcessing, processed):
+                     inpaint_full_res, p: StableDiffusionProcessing, processed):
     sampler_index = 0
     for i in range(len(sd_samplers.samplers_for_img2img)):
         if sd_samplers.samplers_for_img2img[i].name.lower() == p.sampler_name.lower():
@@ -235,7 +236,7 @@ def generate_img2img(init_img_inpaint, init_mask_inpaint, inpainting_fill, denoi
         init_img_inpaint.height,  # height
         init_img_inpaint.width,  # width
         0,  # resize_mode: int
-        False,  # inpaint_full_res: bool
+        inpaint_full_res,  # inpaint_full_res: bool
         0,  # inpaint_full_res_padding: int
         True,  # inpainting_mask_invert
         None,  # img2img_batch_input_dir: str
