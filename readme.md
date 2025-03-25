@@ -1,3 +1,8 @@
+# **WARNING**: This extension is **heavily** outdated and **will not work** on current versions of stable-diffusion-webui
+If you really want to use it you could:  
+A: Submit a pull request which updates the extension  
+B: Use a much older version of stable-diffusion-webui which is compatible with this extension
+
 # sd-webui-riffusion-outpaint
 ## Table of contents
 1. [What does it do?](#what-does-it-do)
